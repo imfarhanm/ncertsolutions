@@ -1,0 +1,287 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SEO Image Prep Tool</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+        }
+        /* Simple transition for a smoother UI */
+        .transition-all {
+            transition: all 0.3s ease-in-out;
+        }
+    </style>
+</head>
+<body class="bg-gray-900 text-gray-200 flex items-center justify-center min-h-screen p-4">
+
+    <div class="w-full max-w-4xl mx-auto bg-gray-800 rounded-2xl shadow-2xl p-6 md:p-8 space-y-8">
+        
+        <!-- Header Section -->
+        <div>
+            <h1 class="text-3xl font-bold text-white text-center">SEO Image Preparation Tool</h1>
+            <p class="text-center text-gray-400 mt-2">Upload, resize, and generate SEO-friendly `<img>` tags instantly.</p>
+            <div class="text-center mt-4 bg-gray-700/50 border border-gray-600 rounded-lg px-4 py-2 text-sm">
+                <p>Running on domain: <span id="domain-display" class="font-semibold text-cyan-400">detecting...</span></p>
+            </div>
+        </div>
+
+        <!-- Main Content Area -->
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+            
+            <!-- Left Side: Input Form -->
+            <div class="bg-gray-700/50 p-6 rounded-xl border border-gray-700">
+                <h2 class="text-xl font-semibold text-white mb-4">1. Image & SEO Details</h2>
+                <form id="image-form" class="space-y-4">
+                    <div id="domain-input-section" class="hidden">
+                        <label for="domain-name" class="block text-sm font-medium text-gray-300 mb-1">Your Website Domain</label>
+                        <input type="text" id="domain-name" placeholder="example.com" required class="w-full bg-gray-800 border border-yellow-500 rounded-lg px-3 py-2 text-white focus:ring-2 focus:ring-yellow-500 focus:border-yellow-500 outline-none">
+                    </div>
+                    <div>
+                        <label for="image-file" class="block text-sm font-medium text-gray-300 mb-1">Image File</label>
+                        <input type="file" id="image-file" accept="image/*" required class="w-full text-sm text-gray-400 file:mr-4 file:py-2 file:px-4 file:rounded-md file:border-0 file:text-sm file:font-semibold file:bg-cyan-500 file:text-white hover:file:bg-cyan-600 cursor-pointer">
+                    </div>
+                    <div>
+                        <label for="file-name" class="block text-sm font-medium text-gray-300 mb-1">Desired File Name (e.g., "blue-widget-top-view")</label>
+                        <input type="text" id="file-name" placeholder="A descriptive file name" required class="w-full bg-gray-800 border border-gray-600 rounded-lg px-3 py-2 text-white focus:ring-2 focus:ring-cyan-500 focus:border-cyan-500 outline-none">
+                    </div>
+                    <div>
+                        <label for="alt-tag" class="block text-sm font-medium text-gray-300 mb-1">Alt Tag</label>
+                        <input type="text" id="alt-tag" placeholder="A concise description of the image" required class="w-full bg-gray-800 border border-gray-600 rounded-lg px-3 py-2 text-white focus:ring-2 focus:ring-cyan-500 focus:border-cyan-500 outline-none">
+                    </div>
+                     <div>
+                        <label for="title-tag" class="block text-sm font-medium text-gray-300 mb-1">Title Tag (Optional)</label>
+                        <input type="text" id="title-tag" placeholder="Tooltip text on hover" class="w-full bg-gray-800 border border-gray-600 rounded-lg px-3 py-2 text-white focus:ring-2 focus:ring-cyan-500 focus:border-cyan-500 outline-none">
+                    </div>
+                    <button type="submit" class="w-full bg-cyan-500 hover:bg-cyan-600 text-white font-bold py-3 px-4 rounded-lg transition-all shadow-lg shadow-cyan-500/20">
+                        Generate Code
+                    </button>
+                </form>
+            </div>
+
+            <!-- Right Side: Output & Preview -->
+            <div id="output-section" class="bg-gray-700/50 p-6 rounded-xl border border-gray-700 hidden">
+                <h2 class="text-xl font-semibold text-white mb-4">2. Generated Output</h2>
+                
+                <!-- Image Preview -->
+                <div class="mb-4">
+                     <div class="flex justify-between items-center mb-2">
+                        <h3 class="text-lg font-medium text-white">Preview (1200x780)</h3>
+                        <a id="download-button" class="hidden bg-green-600 hover:bg-green-700 text-white font-bold py-2 px-4 rounded-lg transition-all text-sm shadow-lg shadow-green-600/20">
+                            Download Image as .webp
+                        </a>
+                    </div>
+                    <div class="w-full aspect-[1200/780] bg-gray-800 rounded-lg overflow-hidden border-2 border-gray-600">
+                        <img id="image-preview" src="https://placehold.co/1200x780/1f2937/9ca3af?text=Your+Image+Here" alt="Resized image preview" class="w-full h-full object-cover">
+                    </div>
+                </div>
+
+                <!-- Generated HTML Code -->
+                <div>
+                    <h3 class="text-lg font-medium text-white mb-2">3. Final HTML Code</h3>
+                    <div class="relative">
+                        <textarea id="html-output" readonly class="w-full h-40 bg-gray-900 font-mono text-sm p-4 rounded-lg border border-gray-600 text-green-400 resize-none outline-none focus:ring-2 focus:ring-cyan-500"></textarea>
+                        <button id="copy-button" class="absolute top-2 right-2 bg-gray-600 hover:bg-gray-500 text-white font-semibold py-1 px-3 rounded-md text-xs">
+                            Copy
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <!-- Hidden canvas for image processing -->
+        <canvas id="image-canvas" class="hidden"></canvas>
+        
+        <!-- Toast Notification -->
+        <div id="toast" class="fixed bottom-5 right-5 bg-green-500 text-white py-2 px-5 rounded-lg shadow-xl translate-x-[150%] transition-transform duration-500">
+            Code copied to clipboard!
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const domainDisplay = document.getElementById('domain-display');
+            const imageForm = document.getElementById('image-form');
+            const domainInputSection = document.getElementById('domain-input-section');
+            const domainNameInput = document.getElementById('domain-name');
+            const imageFile = document.getElementById('image-file');
+            const fileNameInput = document.getElementById('file-name');
+            const altTagInput = document.getElementById('alt-tag');
+            const titleTagInput = document.getElementById('title-tag');
+            
+            const outputSection = document.getElementById('output-section');
+            const imagePreview = document.getElementById('image-preview');
+            const htmlOutput = document.getElementById('html-output');
+            const copyButton = document.getElementById('copy-button');
+            const imageCanvas = document.getElementById('image-canvas');
+            const toast = document.getElementById('toast');
+            const downloadButton = document.getElementById('download-button');
+            
+            const TARGET_WIDTH = 1200;
+            const TARGET_HEIGHT = 780;
+            let detectedDomain = '';
+            let currentObjectUrl = null; // To keep track of the generated blob URL
+
+            // 1. Identify and display the domain
+            try {
+                detectedDomain = window.location.hostname || '';
+                if (detectedDomain && detectedDomain !== 'localhost' && detectedDomain !== '127.0.0.1' && detectedDomain.trim() !== '') {
+                    domainDisplay.textContent = detectedDomain;
+                } else {
+                    domainDisplay.textContent = 'Not detected (local file)';
+                    domainInputSection.classList.remove('hidden');
+                    detectedDomain = ''; // Ensure it's empty if not valid
+                }
+            } catch (e) {
+                domainDisplay.textContent = 'Could not determine domain.';
+                domainInputSection.classList.remove('hidden');
+                console.error("Error getting hostname:", e);
+            }
+            
+            // Function to sanitize file names
+            const sanitizeFileName = (name) => {
+                return name.trim().toLowerCase().replace(/\s+/g, '-').replace(/[^a-z0-9-]/g, '');
+            };
+
+            // 2. Handle form submission
+            imageForm.addEventListener('submit', (e) => {
+                e.preventDefault();
+                
+                const file = imageFile.files[0];
+                const altTag = altTagInput.value.trim();
+                const fileName = sanitizeFileName(fileNameInput.value);
+                const manualDomain = domainNameInput.value.trim();
+                const domain = detectedDomain || manualDomain;
+
+                if (!file || !altTag || !fileName || !domain) {
+                    alert('Please fill out all required fields, including domain if prompted, and select an image.');
+                    return;
+                }
+
+                outputSection.classList.remove('hidden');
+                
+                const reader = new FileReader();
+                reader.onload = (event) => {
+                    const img = new Image();
+                    img.onload = () => {
+                        const ctx = imageCanvas.getContext('2d');
+                        imageCanvas.width = TARGET_WIDTH;
+                        imageCanvas.height = TARGET_HEIGHT;
+                        
+                        ctx.drawImage(img, 0, 0, TARGET_WIDTH, TARGET_HEIGHT);
+                        
+                        // Use toBlob for better compatibility, especially with Content Security Policies
+                        imageCanvas.toBlob((blob) => {
+                            if (blob) {
+                                // Revoke the old URL if it exists to prevent memory leaks
+                                if (currentObjectUrl) {
+                                    URL.revokeObjectURL(currentObjectUrl);
+                                }
+                                
+                                // Create a new object URL from the blob
+                                currentObjectUrl = URL.createObjectURL(blob);
+                                
+                                // Set preview and download link
+                                imagePreview.src = currentObjectUrl;
+                                downloadButton.href = currentObjectUrl;
+                                downloadButton.download = `${fileName}.webp`;
+                                downloadButton.classList.remove('hidden');
+
+                                updateHtmlCode();
+                            } else {
+                                alert('There was an error processing the image.');
+                            }
+                        }, 'image/webp', 0.9);
+                    };
+                    img.src = event.target.result;
+                };
+                reader.readAsDataURL(file);
+            });
+
+            // Listen for input on any form field to update the code live after initial generation
+            [fileNameInput, altTagInput, titleTagInput, domainNameInput].forEach(input => {
+                input.addEventListener('input', () => {
+                    if (!outputSection.classList.contains('hidden')) {
+                        updateHtmlCode();
+                    }
+                });
+            });
+
+            function updateHtmlCode() {
+                const manualDomain = domainNameInput.value.trim();
+                const domain = detectedDomain || manualDomain;
+
+                if (!domain) {
+                    htmlOutput.value = "<!-- Enter your domain name to generate the final code. -->";
+                    return;
+                }
+
+                // Use the specific date provided by the user
+                const year = 2025;
+                const month = '08'; // August
+                const fileName = sanitizeFileName(fileNameInput.value) || 'your-image-name';
+                
+                const basePath = `https://${domain}/wp-content/uploads/${year}/${month}/${fileName}`;
+                
+                const srcPath = `${basePath}.webp`;
+                const srcset = 
+                    `${basePath}-1024x663.webp 1024w, ` +
+                    `${basePath}-768x497.webp 768w, ` +
+                    `${basePath}-300x194.webp 300w`;
+                
+                const sizes = `(max-width: 1200px) 100vw, 1200px`;
+
+                const altTag = altTagInput.value.trim();
+                const titleTag = titleTagInput.value.trim();
+                const titleAttribute = titleTag ? ` title="${escapeHtml(titleTag)}"` : '';
+
+                const generatedHtml = `<img src="${escapeHtml(srcPath)}" \n` +
+                                    `     alt="${escapeHtml(altTag)}" \n` +
+                                    `     class="alignnone size-full" \n` +
+                                    `     width="${TARGET_WIDTH}" \n` +
+                                    `     height="${TARGET_HEIGHT}"${titleAttribute} \n` +
+                                    `     loading="lazy" \n` +
+                                    `     decoding="async" \n` +
+                                    `     srcset="${escapeHtml(srcset)}" \n` +
+                                    `     sizes="${escapeHtml(sizes)}">`;
+
+                htmlOutput.value = generatedHtml;
+            }
+
+            // 5. Handle copy functionality
+            copyButton.addEventListener('click', () => {
+                htmlOutput.select();
+                try {
+                    document.execCommand('copy');
+                    showToast('Code copied to clipboard!');
+                } catch (err) {
+                    console.error('Failed to copy text: ', err);
+                    showToast('Failed to copy!', true);
+                }
+            });
+            
+            function showToast(message, isError = false) {
+                toast.textContent = message;
+                toast.classList.toggle('bg-red-500', isError);
+                toast.classList.toggle('bg-green-500', !isError);
+                toast.classList.remove('translate-x-[150%]');
+                setTimeout(() => {
+                    toast.classList.add('translate-x-[150%]');
+                }, 3000);
+            }
+
+            function escapeHtml(unsafe) {
+                return unsafe
+                    .replace(/&/g, "&amp;")
+                    .replace(/</g, "&lt;")
+                    .replace(/>/g, "&gt;")
+                    .replace(/"/g, "&quot;")
+                    .replace(/'/g, "&#039;");
+            }
+        });
+    </script>
+</body>
+</html>
+
